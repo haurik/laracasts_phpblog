@@ -1,0 +1,1 @@
+<h1>Welcome to my PHPBlog {{ $user->name }}</h1>
