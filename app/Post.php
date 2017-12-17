@@ -10,51 +10,60 @@ class Post extends Model
 {
     protected $guarded = [];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo('App\User');
     }
-    
-    public function comments() {
+
+    public function comments()
+    {
         return $this->hasMany('App\Comment');
     }
-    
-    public function addComment($request) {
+
+    public function tags()
+    {
+        return $this->belongsToMany('App\Tag');
+    }
+
+    public function addComment($request)
+    {
         $this->comments()->create([
-            'body' => $request->body, 
+            'body' => $request->body,
             'user_id' => auth()->user()->id
         ]);
-        
+
         // Comment::create([
         //     'body' => $request->body,
         //     'post_id' => $this->id
         // ]);
-
     }
 
-    public function scopeFilter($query, $filters) {
-    
-    if(!empty($filters)) { 
-
-            if($month = $filters['month']) {
+    public function scopeFilter($query, $filters)
+    {
+        if (!empty($filters)) {
+            if ($month = $filters['month']) {
                 $query->whereMonth('created_at', Carbon::parse($month)->month);
             }
-            
-            if($year = $filters['year']) {
-                $query->whereYear('created_at', $year);            
-            }
 
+            if ($year = $filters['year']) {
+                $query->whereYear('created_at', $year);
+            }
         }
-        
     }
 
-    public static function archives(){
+    public static function archives()
+    {
         return static::selectRaw('YEAR(created_at) as Year, MONTHNAME(created_at) as Month, COUNT(*) as published')
             ->groupBy('Year', 'Month')
             ->orderByRaw('min(created_at) DESC')
             ->get();
     }
 
-    public function compose(View $view) {
-        $view->with('archives', $this->archives());
+    public function compose(View $view)
+    {
+        $archives = $this->archives();
+        $tags = \App\Tag::has('posts')->pluck('name');
+
+        $view->with(compact('archives', 'tags'));
     }
 }
