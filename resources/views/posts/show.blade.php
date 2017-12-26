@@ -45,7 +45,7 @@
                     </div>
                     
                     <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Create post</button>
+                        <button type="submit" class="btn btn-primary">Create comment</button>
                     </div>
 
 
